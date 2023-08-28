@@ -50,11 +50,6 @@ const login = async (req, res) => {
     res.json({ token });
 };
 
-module.exports = {
-    login,
-};
-
-
 const addTimeSlots = async (req, res) => {
     const { doctor_id, time_slots } = req.body;
 
@@ -78,8 +73,34 @@ const addTimeSlots = async (req, res) => {
     }
 };
 
+const getProfile = async (req, res) => {
+    const doctorId = req.params.id; // Assuming the route parameter is named 'id'
+
+    try {
+        const doctor = await Doctor.findById(doctorId);
+
+        if (!doctor) {
+            return res.status(404).json({ message: 'Doctor not found' });
+        }
+
+        // Remove sensitive information before sending the doctor's profile
+        const sanitizedDoctor = {
+            _id: doctor._id,
+            name: doctor.name,
+            qualification: doctor.qualification,
+            email: doctor.email,
+            available_time_slots: doctor.available_time_slots
+        };
+
+        res.json(sanitizedDoctor);
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching doctor profile', error: error.message });
+    }
+};
+
 module.exports = {
     addTimeSlots,
     registerDoctor,
-    login
+    login,
+    getProfile
 };

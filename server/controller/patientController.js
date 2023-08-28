@@ -49,7 +49,33 @@ const login = async (req, res) => {
     res.json({ token });
 };
 
+
+const getProfile = async (req, res) => {
+    const patientId = req.params.id;
+
+    try {
+        const patient = await Patient.findById(patientId);
+
+        if (!patient) {
+            return res.status(404).json({ message: 'Patient not found' });
+        }
+
+        // Remove sensitive information before sending the patient's profile
+        const sanitizedPatient = {
+            _id: patient._id,
+            name: patient.name,
+            age: patient.age,
+            email: patient.email,
+        };
+
+        res.json(sanitizedPatient);
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching patient profile', error: error.message });
+    }
+};
+
 module.exports = {
     login,
-    registerPatient
+    registerPatient,
+    getProfile
 };
